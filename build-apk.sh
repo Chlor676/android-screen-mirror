@@ -8,28 +8,20 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 echo -e "${BLUE}========================================${NC}"
-echo -e "${BLUE}  Android Screen Mirror - APK Builder${NC}"
+echo -e "${BLUE}  Android - APK Builder${NC}"
 echo -e "${BLUE}========================================${NC}"
 echo ""
 
 # Check if we're in the right directory
 if [ ! -f "settings.gradle.kts" ]; then
-    echo -e "${RED}❌ Error: settings.gradle.kts not found${NC}"
-    echo -e "${YELLOW}Please run this script from the project root directory${NC}"
+    echo -e "${RED}❌ Error: Not in project root directory${NC}"
     exit 1
 fi
 
-# Download gradle wrapper if not exists
-if [ ! -f "gradle/wrapper/gradle-wrapper.jar" ]; then
-    echo -e "${BLUE}📥 Downloading Gradle wrapper...${NC}"
-    mkdir -p gradle/wrapper
-    cd gradle/wrapper
-    curl -L -o gradle-wrapper.jar https://github.com/gradle/gradle/releases/download/v8.0.0/gradle-8.0-wrapper.jar
-    cd ../..
-    if [ ! -f "gradle/wrapper/gradle-wrapper.jar" ]; then
-        echo -e "${RED}❌ Failed to download gradle-wrapper.jar${NC}"
-        exit 1
-    fi
+# Check Java installation
+if ! command -v java &> /dev/null; then
+    echo -e "${RED}❌ Java is not installed${NC}"
+    exit 1
 fi
 
 echo -e "${BLUE}Select build type:${NC}"
@@ -41,7 +33,7 @@ case $choice in
     1)
         echo -e "${BLUE}🔨 Building Debug APK...${NC}"
         chmod +x ./gradlew
-        ./gradlew clean assembleDebug --build-cache
+        ./gradlew clean assembleDebug
         if [ $? -eq 0 ]; then
             echo ""
             echo -e "${GREEN}✅ Debug APK built successfully!${NC}"
@@ -52,15 +44,15 @@ case $choice in
             echo ""
         else
             echo -e "${RED}❌ Build failed${NC}"
+            echo -e "${YELLOW}Trying alternative approach...${NC}"
+            echo "Run: java -cp gradle/wrapper/gradle-wrapper.jar org.gradle.wrapper.GradleWrapperMain assembleDebug"
             exit 1
         fi
         ;;
     2)
         echo -e "${BLUE}🔨 Building Release APK...${NC}"
-        echo -e "${YELLOW}⚠️  Note: Release builds require a keystore${NC}"
-        echo ""
         chmod +x ./gradlew
-        ./gradlew clean assembleRelease --build-cache
+        ./gradlew clean assembleRelease
         if [ $? -eq 0 ]; then
             echo ""
             echo -e "${GREEN}✅ Release APK built successfully!${NC}"
