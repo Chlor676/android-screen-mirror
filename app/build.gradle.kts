@@ -16,15 +16,6 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    signingConfigs {
-        create("release") {
-            storeFile = file("keystore.jks")
-            storePassword = System.getenv("KEYSTORE_PASSWORD") ?: "password123"
-            keyAlias = System.getenv("KEY_ALIAS") ?: "release-key"
-            keyPassword = System.getenv("KEY_PASSWORD") ?: "password123"
-        }
-    }
-
     buildTypes {
         debug {
             isDebuggable = true
@@ -37,7 +28,6 @@ android {
             isDebuggable = false
             isMinifyEnabled = true
             isShrinkResources = true
-            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -64,12 +54,6 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
-
-    bundle {
-        language {
-            enableSplit = false
-        }
-    }
 }
 
 dependencies {
@@ -83,20 +67,4 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-}
-
-tasks.register("buildApk") {
-    dependsOn("assembleDebug")
-    doLast {
-        println("✅ Debug APK built successfully!")
-        println("📍 Location: app/build/outputs/apk/debug/app-debug.apk")
-    }
-}
-
-tasks.register("buildRelease") {
-    dependsOn("assembleRelease")
-    doLast {
-        println("✅ Release APK built successfully!")
-        println("📍 Location: app/build/outputs/apk/release/app-release.apk")
-    }
 }
